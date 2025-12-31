@@ -1,0 +1,21 @@
+- name: Create Ebooks directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ data_dir }}"
+    - "{{ data_dir }}/cwa"
+    - "{{ data_dir }}/cwa/config"
+    - "{{ data_dir }}/booklore"
+    - "{{ data_dir }}/booklore/data"
+    - "{{ data_dir }}/booklore/books"
+    - "{{ data_dir }}/booklore/bookdrop"
+    - "{{ data_dir }}/mariadb/config"
+    - "{{ app_dir }}"
+
+- name: Render docker-compose
+  template:
+    src: templates/docker-compose.yaml.j2
+    dest: "{{ app_dir }}/docker-compose.yaml"
+    mode: '0644'
