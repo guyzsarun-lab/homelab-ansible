@@ -1,0 +1,12 @@
+---
+- name: Install ebooks services
+  hosts: app-server
+  vars:
+    mount_src: /home/devops/nfs_share/ebook
+    mount_dest: /mnt/nas/ebook
+
+    data_dir: /mnt/nas/ebook
+    app_dir: /app/ebook
+  roles:
+    - nas
+    - ebooks

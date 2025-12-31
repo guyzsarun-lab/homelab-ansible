@@ -1,0 +1,55 @@
+services:
+  calibre-web-automated-book-downloader:
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    container_name: calibre-web-automated-book-downloader
+    # environment:
+      # - PUID: 1000
+      # - PGID: 1000
+      # - CWA_DB_PATH: /auth/app.db
+    ports:
+      - 8084:8084
+    restart: unless-stopped
+    volumes:
+      - {{ data_dir }}/booklore/bookdrop:/cwa-book-ingest
+      - {{ data_dir }}/cwa/config:/config
+  booklore:
+    image: booklore/booklore:latest
+    container_name: booklore
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=Asia/Bangkok
+      - DATABASE_URL=jdbc:mariadb://mariadb:3306/booklore
+      - DATABASE_USERNAME={{ booklore_database_username }}
+      - DATABASE_PASSWORD={{ booklore_database_password }}
+      - BOOKLORE_PORT=6060
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - 6060:6060
+    volumes:
+      - {{ data_dir }}/booklore/data:/app/data
+      - {{ data_dir }}/booklore/books:/books
+      - {{ data_dir }}/booklore/bookdrop:/bookdrop
+    restart: unless-stopped
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Bangkok
+      - MYSQL_ROOT_PASSWORD={{ booklore_database_password }}
+      - MYSQL_DATABASE=booklore
+      - MYSQL_USER={{ booklore_database_username }}
+      - MYSQL_PASSWORD={{ booklore_database_password }}
+    volumes:
+      - {{ data_dir }}/mariadb/config:/config
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
