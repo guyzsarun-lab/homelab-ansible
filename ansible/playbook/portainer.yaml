@@ -1,0 +1,7 @@
+---
+- name: Install portainer
+  hosts: ubuntu-server
+  vars:
+    app_dir: /app/portainer
+  roles:
+    - portainer
