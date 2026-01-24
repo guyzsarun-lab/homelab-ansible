@@ -1,0 +1,7 @@
+- name: Apply baseline config to all hosts
+  hosts: jetson-nano-orin
+  gather_facts: true
+  become: true
+  roles:
+    - common
+    - zerotier
